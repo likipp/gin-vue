@@ -1,5 +1,13 @@
 <template>
   <div>
+    <!--    <span style="margin-left: 8px">-->
+    <!--      <template v-if="hasSelected">-->
+    <!--        {{ `已选择 ${selectedRowKeys.length} 项` }}-->
+    <!--      </template>-->
+    <!--    </span>-->
+    <a-button type="primary" icon="plus" @click="$refs.createModal.add()">新建</a-button>
+    <a-button type="dashed" @click="tableOption">{{ optionAlertShow && '关闭' || '开启' }} alert</a-button>
+    <a-alert message="this.selectedRowKeys.length" type="info" show-icon />
     <a-table
       :columns="columns"
       :data-source="userList"
@@ -8,6 +16,30 @@
       bordered>
       <span slot="status" slot-scope="text">
         <a-badge :status="text | statusTypeFilter" :text="text | statusFilter" />
+      </span>
+      <span slot="action">
+        <template>
+          <a-button type="primary">
+            <a-icon type="edit"></a-icon>
+            编辑</a-button>
+        </template>
+        <a-dropdown>
+          <a-button type="link" style="margin-left: 5px">
+            更多<a-icon type="down" />
+          </a-button>
+          <a-menu slot="overlay">
+            <a-menu-item>
+              <a-button type="dashed">
+                禁用<a-icon type="stop" />
+              </a-button>
+            </a-menu-item>
+            <a-menu-item>
+              <a-button type="danger">
+                删除<a-icon type="delete" />
+              </a-button>
+            </a-menu-item>
+          </a-menu>
+        </a-dropdown>
       </span>
     </a-table>
   </div>
@@ -39,6 +71,12 @@
       dataIndex: 'status',
       align: 'center',
       scopedSlots: { customRender: 'status' }
+    },
+    {
+      title: '操作',
+      dataIndex: 'action',
+      align: 'center',
+      scopedSlots: { customRender: 'action' }
     }
   ]
   // 定义状态参数
@@ -62,7 +100,8 @@
           page: 1,
           pageSize: 3
         },
-        columns
+        columns,
+        optionAlertShow: false
       }
     },
     methods: {
@@ -77,10 +116,29 @@
       onSelectChange (selectedRowKeys) {
         console.log('selectedRowKeys changed: ', selectedRowKeys)
         this.selectedRowKeys = selectedRowKeys
+      },
+      tableOption () {
+        if (!this.optionAlertShow) {
+          this.options = {
+            alert: { show: true, clear: () => { this.selectedRowKeys = [] } },
+            rowSelection: {
+              selectedRowKeys: this.selectedRowKeys,
+              onChange: this.onSelectChange
+            }
+          }
+          this.optionAlertShow = true
+        } else {
+          this.options = {
+            alert: false,
+            rowSelection: null
+          }
+          this.optionAlertShow = false
+        }
       }
     },
     created () {
       this.handleGetUserList()
+      this.tableOption()
     },
     computed: {
       hasSelected () {
