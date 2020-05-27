@@ -1,13 +1,15 @@
 <template>
   <div>
-    <!--    <span style="margin-left: 8px">-->
-    <!--      <template v-if="hasSelected">-->
-    <!--        {{ `已选择 ${selectedRowKeys.length} 项` }}-->
-    <!--      </template>-->
-    <!--    </span>-->
-    <a-button type="primary" icon="plus" @click="$refs.createModal.add()">新建</a-button>
-    <a-button type="dashed" @click="tableOption">{{ optionAlertShow && '关闭' || '开启' }} alert</a-button>
-    <a-alert message="this.selectedRowKeys.length" type="info" show-icon />
+    <div class="custom-table-operator">
+      <a-button type="primary" icon="plus">新建</a-button>
+      <a-button type="dashed" @click="tableOption">{{ optionAlertShow && '关闭' || '开启' }}</a-button>
+      <a-alert
+        style="margin-top: 18px"
+        v-if="this.optionAlertShow"
+        :message="'已经选中: ' + this.selectedRowKeys.length + '项'"
+        type="info"
+        show-icon />
+    </div>
     <a-table
       :columns="columns"
       :data-source="userList"
@@ -79,7 +81,7 @@
       scopedSlots: { customRender: 'action' }
     }
   ]
-  // 定义状态参数
+  // 定义状态参数 1, 0是后端的状态码
   const statusMap = {
     1: {
       status: 'success',
@@ -94,14 +96,19 @@
     name: 'User',
     data () {
       return {
+        // 定义数组, 用于接收后端用户列表
         userList: [],
+        // 获取选中的选择框
         selectedRowKeys: [],
+        // 分页的页码数, 单页行数
         pageInfo: {
           page: 1,
           pageSize: 3
         },
+        // table表头
         columns,
-        optionAlertShow: false
+        // 操作是否显示已选择数量框
+        optionAlertShow: true
       }
     },
     methods: {
@@ -156,6 +163,7 @@
   }
 </script>
 
-<style scoped>
-
+<style lang="less">
+  // 引入user样式
+  @import './user.less';
 </style>
